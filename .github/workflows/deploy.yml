@@ -1,0 +1,29 @@
+
+name: Deploy to Argo CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install Argo CD CLI
+      run: |
+        curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        chmod +x argocd
+        sudo mv argocd /usr/local/bin/
+
+    - name: Login to Argo CD
+      run: |
+        argocd login ${{ secrets.ARGOCD_SERVER }}           --username ${{ secrets.ARGOCD_USERNAME }}           --password ${{ secrets.ARGOCD_PASSWORD }}           --insecure
+
+    - name: Sync Argo CD App
+      run: |
+        argocd app sync my-argo-app
