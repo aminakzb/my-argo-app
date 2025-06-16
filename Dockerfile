@@ -1,34 +1,11 @@
-# Build stage
-FROM node:18-alpine AS builder
+# Use a lightweight base image
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy your application files to the nginx html directory
+COPY . /usr/share/nginx/html
 
-# Copy package files
-COPY package*.json ./
+# Expose port 80
+EXPOSE 80
 
-# Install dependencies
-RUN npm install
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy built assets from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-
-# Install only production dependencies
-RUN npm install --production
-
-# Expose the port your app runs on
-EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"] 
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"] 
